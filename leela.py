@@ -39,6 +39,7 @@ class ReaderThread:
                 line = self.fd.readline()
             except IOError:
                 time.sleep(0.2)
+                print("Readline error")
                 pass
             if line is not None and len(line) > 0:
                 self.queue.put(line)
@@ -71,24 +72,18 @@ def start_reader_thread(fd):
 class CLI(object):
     def __init__(self, is_handicap_game=False, komi=6.5, seconds_per_search=5, verbosity=2):
         self.p = None
-        self.turn = 'black'
         self.is_handicap_game = is_handicap_game
         self.komi = komi
         self.seconds_per_search = seconds_per_search + 1 # add one to account for lag time
         self.verbosity = verbosity
 
-    def get_turn(self):
-        if self.turn == 'black':
-            self.turn = 'white'
-        else:
-            self.turn = 'black'
-        return self.turn
-
     # Send command and wait for ack
     def send_command(self, cmd, expected_success_count=1, drain=True, timeout=20):
-        self.p.stdin.write((cmd + "\n").encode('utf-8'))
+        self.p.stdin.write(bytes(cmd + '\n', 'utf-8'))
+        print("Command '"+cmd+"' is sent")
+        self.p.stdin.flush()
 
-        sleep_per_try = 0.1
+        sleep_per_try = 1.0
         tries = 0
         success_count = 0
 
@@ -99,13 +94,12 @@ class CLI(object):
             while True:
                 s = self.stdout_thread.readline()
                 # Leela follows GTP and prints a line starting with "=" upon success.
-                if s.strip() == '=':
+                if s.strip() == b'=':
                     success_count += 1
                     if success_count >= expected_success_count:
-                        print("Command '", cmd, "' is sent")
                         return
                 # No output, so break readline loop and sleep and wait for more
-                if s == "":
+                if s.strip() == b'\n':
                     break
         raise Exception("Failed to send command '%s' to Leela" % (cmd))
 
@@ -113,7 +107,7 @@ class CLI(object):
         if self.verbosity > 0:
             print("Starting leela...", file=sys.stderr)
 
-        p = Popen(['/usr/games/leela_gtp_opencl', '--gtp', '--noponder'], stdout=PIPE, stdin=PIPE, stderr=PIPE)
+        p = Popen(['/usr/games/leela_gtp_opencl', '--gtp'], stdout=PIPE, stdin=PIPE, stderr=PIPE)
         self.p = p
         self.stdout_thread = start_reader_thread(p.stdout)
         self.stderr_thread = start_reader_thread(p.stderr)
@@ -121,12 +115,14 @@ class CLI(object):
         # not safe to wait
         # might not enough memory
         # might lost
-        time.sleep(3)
+        time.sleep(5)
 
         if self.verbosity > 0:
-            print("Setting komi %.1f to Leela" % self.komi, file=sys.stderr)
-        # self.send_command('komi %.1f' % (self.komi))
-        # self.send_command('time_settings 0 %d 1' % (self.seconds_per_search))
+            print("Setting komi %.1f to Leela" % (self.komi), file=sys.stderr)
+
+        self.send_command('heatmap')
+        self.send_command('komi %.1f' % (self.komi))
+        self.send_command('time_settings 0 %d 1' % (self.seconds_per_search))
 
     def stop(self):
         if self.verbosity > 0:
