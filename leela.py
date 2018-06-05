@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import os
 import re
 import time
@@ -206,7 +207,7 @@ class CLI(object):
         for i in board_info:
             if i.count('to move') == 1:
                 turn = i.split()[0].strip().lower()
-        return turn 
+        return turn
 
     def add_move(self, color, pos):
         '''
@@ -225,7 +226,7 @@ class CLI(object):
         if self.verbosity > 0:
             print("Play %s at %s" % (color, pos), file=sys.stderr)
         self.send_command('play %s %s' % (color, pos))
-    
+
     def undo(self):
         if self.verbosity > 0:
             print("Undo", file=sys.stderr)
@@ -296,7 +297,7 @@ class CLI(object):
         self.p.stdin.flush()
         time.sleep(1)
         so, se = self.drain()
-        
+
         actual, candidates  = get_position(outs[0].split()[1]), self.extract_candidates(errs)
 
         if self.verbosity > 0:
