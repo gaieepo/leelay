@@ -103,4 +103,7 @@ ENV/
 # weiqi sgf files
 *.sgf
 
+# customized
 origin_*
+leela-zero/
+lizzie/
