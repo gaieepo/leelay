@@ -81,6 +81,12 @@ class Leelaz:
             print(template.format(type(e).__name__))
             print("Failed to send command '%s' to Leela" % (cmd))
 
+    def play_move(self, color, move):
+        self.send_command("play " + color + " " + move)
+
+    def gen_move(self, color):
+        self.send_command("genmove " + color)
+
     def start(self):
         p = Popen(['./leelaz', '-g', '-wnetwork.gz'], stdout=PIPE, stdin=PIPE, stderr=PIPE)
         self.p = p

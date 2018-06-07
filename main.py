@@ -13,5 +13,11 @@ def myFunction(*args):
     leelay = LeelayForm(name='Leelay Form')
     leelay.edit()
 
+class Leelay(npyscreen.StandardApp):
+    def onStart(self):
+        self.addForm("MAIN", LeelayForm, name="Leelay Form")
+
 if __name__ == '__main__':
     npyscreen.wrapper_basic(myFunction)
+    # leelay = Leelay()
+    # leelay.run()

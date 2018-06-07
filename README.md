@@ -7,3 +7,4 @@ LeelaZero TUI wrapper
 
 # TODO
 - too many
+- subprocess thread legit (MOST IMPORTANT)

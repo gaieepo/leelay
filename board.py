@@ -22,7 +22,9 @@ class Board(npyscreen.SimpleGrid):
             self.values.append(row)
         self.values.append(list(' abcdefghjklmnopqrst '))
         self.add_handlers({
+            'u':                self.h_undo,
             'z':                self.h_play_move,
+            'g':                self.h_gen_move,
             curses.KEY_UP:      self.h_cursor_up,
             curses.KEY_LEFT:    self.h_cursor_left,
             curses.KEY_DOWN:    self.h_cursor_down,
@@ -33,7 +35,7 @@ class Board(npyscreen.SimpleGrid):
             'l':                self.h_cursor_right,
             '^K':               self.h_cursor_up_star,
             '^H':               self.h_cursor_left_star,
-            '^J':               self.h_cursor_down_star,
+            '^J':               self.h_cursor_left_star,
             '^L':               self.h_cursor_right_star,
             curses.KEY_NPAGE:   self.h_cursor_top_left,
             curses.KEY_PPAGE:   self.h_cursor_bottom_right,
@@ -46,8 +48,15 @@ class Board(npyscreen.SimpleGrid):
             curses.ascii.CR:    self.h_cursor_focus,
         })
 
+    def h_undo(self, *args, **kwargs):
+        pass
+
     def h_play_move(self, *args, **kwargs):
-        self.values[self.edit_cell[0]][self.edit_cell[1]] = 'O'
+        # self.values[self.edit_cell[0]][self.edit_cell[1]] = 'O'
+        pass
+
+    def h_gen_move(self, *args, **kwargs):
+        pass
 
     def h_cursor_up(self, *args, **kwargs):
         if self.edit_cell[0] > 1:
