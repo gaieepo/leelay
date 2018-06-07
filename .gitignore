@@ -107,3 +107,7 @@ ENV/
 origin_*
 leela-zero/
 lizzie/
+leelaz
+leelaz_*
+network*
+test-*
