@@ -36,7 +36,7 @@ class ReaderThread:
         try:
             line = self.queue.get_nowait()
         except queue.Empty:
-            print("Empty queue", file=sys.stdout)
+            # print("Empty queue", file=sys.stdout)
             return ""
         return line
 
@@ -46,7 +46,7 @@ class ReaderThread:
             try:
                 line = self.queue.get_nowait()
             except queue.Empty:
-                print("Empty queue", file=sys.stdout)
+                # print("Empty queue", file=sys.stdout)
                 break
             lines.append(line)
         return lines
@@ -72,28 +72,66 @@ class Leelaz:
         se = self.stderr_thread.read_all_lines()
         return (so,se)
 
-    def send_command(self, cmd):
-        try:
-            self.p.stdin.write(bytes(cmd + '\n', 'utf-8'))
-            self.p.stdin.flush()
-        except Exception as e:
-            template = "Exception type: {0}"
-            print(template.format(type(e).__name__))
-            print("Failed to send command '%s' to Leela" % (cmd))
+    def send_command(self, cmd, expected_success_count=1, drain=True, timeout=20):
+        self.p.stdin.write(bytes(cmd + '\n', 'utf-8'))
+        self.p.stdin.flush()
 
-    def play_move(self, color, move):
-        self.send_command("play " + color + " " + move)
+        sleep_per_try = 0.1
+        tries = 0
+        success_count = 0
 
-    def gen_move(self, color):
-        self.send_command("genmove " + color)
+        while tries * sleep_per_try <= timeout and self.p is not None:
+            time.sleep(sleep_per_try)
+            tries += 1
+            while True:
+                s = self.stdout_thread.readline()
+                if s.count('=') == 1:
+                    success_count += 1
+                    if success_count >= expected_success_count:
+                        if drain:
+                            self.drain()
+                        return s
+                if s == '':
+                    break
+        raise Exception("Failed to send command '%s' to LeelaZero" % (cmd))
 
     def start(self):
         p = Popen(['./leelaz', '-g', '-wnetwork.gz'], stdout=PIPE, stdin=PIPE, stderr=PIPE)
         self.p = p
-        self.stdout_thread = start_reader_thread(p.stdout, caller='stdout', flag=True)
-        self.stderr_thread = start_reader_thread(p.stderr, caller='stderr', flag=True)
+        self.stdout_thread = start_reader_thread(p.stdout, caller='stdout', flag=False)
+        self.stderr_thread = start_reader_thread(p.stderr, caller='stderr', flag=False)
 
         self.send_command("time_settings 0 5 1")
+
+    def play_move(self, color, move):
+        self.send_command("play %s %s" % (color, move))
+
+    def gen_move(self, color):
+        time_limit = 5
+        self.p.stdin.write(bytes('genmove %s\n' % color, 'utf-8'))
+        self.p.stdin.flush()
+
+        sleep_per_wait = 0.1
+        waited = 0
+        outs, errs = [], []
+        while waited * sleep_per_wait < time_limit * 2  and self.p is not None:
+            time.sleep(sleep_per_wait)
+            so, se = self.drain()
+            outs.extend(so)
+            errs.extend(se)
+            if len(so) == 1 and so[0].count('=') == 1:
+                break
+            waited += 1
+
+        self.p.stdin.write(b'\n')
+        self.p.stdin.flush()
+        time.sleep(0.5)
+        so, se = self.drain()
+
+        return outs[0].split()[1]
+
+    def undo(self):
+        self.send_command('undo')
 
     def stop(self):
         if self.p is not None:
@@ -124,3 +162,4 @@ class Leelaz:
 if __name__ == '__main__':
     leelaz = Leelaz()
     leelaz.start()
+    leelaz.gen_move('b')

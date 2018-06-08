@@ -18,6 +18,6 @@ class Leelay(npyscreen.StandardApp):
         self.addForm("MAIN", LeelayForm, name="Leelay Form")
 
 if __name__ == '__main__':
-    npyscreen.wrapper_basic(myFunction)
-    # leelay = Leelay()
-    # leelay.run()
+    # npyscreen.wrapper_basic(myFunction)
+    leelay = Leelay()
+    leelay.run()
