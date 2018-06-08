@@ -17,7 +17,7 @@ class ReaderThread:
     def stop(self):
         self.stopped = True
 
-    def loop(self, flag=False, caller=None):
+    def loop(self, caller=None):
         while not self.stopped and not self.fd.closed:
             line = None
             try:
@@ -29,8 +29,6 @@ class ReaderThread:
             if line is not None and len(line) > 0:
                 line = line.decode()
                 self.queue.put(line)
-                if flag:
-                    print(caller + "=>" + line)
 
     def readline(self):
         try:
@@ -52,10 +50,10 @@ class ReaderThread:
         return lines
 
 
-def start_reader_thread(fd, flag=False, caller=None):
+def start_reader_thread(fd):
     rt = ReaderThread(fd)
     def begin_loop():
-        rt.loop(flag, caller)
+        rt.loop()
     t = Thread(target=begin_loop)
     t.start()
     return rt
@@ -112,8 +110,8 @@ class Leelaz:
     def start(self):
         p = Popen(['./leelaz', '-g', '-wnetwork.gz'], stdout=PIPE, stdin=PIPE, stderr=PIPE)
         self.p = p
-        self.stdout_thread = start_reader_thread(p.stdout, caller='stdout', flag=False)
-        self.stderr_thread = start_reader_thread(p.stderr, caller='stderr', flag=False)
+        self.stdout_thread = start_reader_thread(p.stdout)
+        self.stderr_thread = start_reader_thread(p.stderr)
 
         self.send_command("time_settings 0 5 1")
 
