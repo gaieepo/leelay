@@ -67,6 +67,20 @@ class Leelaz:
         self.stdout_thread = None
         self.stderr_thread = None
 
+    def __new__(cls, *args, **kwargs):
+        singleton = cls.__dict__.get('__singleton__')
+        if singleton is not None:
+            return singleton
+        cls.__singleton__ = singleton = object.__new__(cls)
+        return singleton
+
+    def __enter__(self):
+        self.start()
+        return self
+
+    def __exit__(self, *args, **kwargs):
+        self.stop()
+
     def drain(self):
         so = self.stdout_thread.read_all_lines()
         se = self.stderr_thread.read_all_lines()
@@ -158,8 +172,8 @@ class Leelaz:
             except OSError as e:
                 print("Error when terminate process: ", str(e), file=sys.stderr)
 
+leelaz = Leelaz()
 
 if __name__ == '__main__':
-    leelaz = Leelaz()
-    leelaz.start()
-    leelaz.gen_move('b')
+    with Leelaz() as leelaz:
+        print(leelaz.gen_move('b'))

@@ -2,6 +2,7 @@
 import npyscreen
 import curses
 import numpy as np
+from leelaz import leelaz
 
 EMPTY = 0
 BLACK = 1
