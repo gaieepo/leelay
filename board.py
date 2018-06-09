@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import npyscreen
 import curses
+import numbers
 import numpy as np
 from leelaz import leelaz
 
@@ -10,8 +11,10 @@ BLACK = 1
 WHITE = 2
 PASS_MOVE = None
 OPPONENT = {BLACK:WHITE, WHITE:BLACK}
+STAR = '+'
 STARS = ((3,15),(9,15),(15,3),(9,3),(3,3),(15,15),(15,9),(9,9),(3,9))
 COL_NAMES = 'ABCDEFGHJKLMNOPQRST'
+BOARD_UI = {BLACK:'X',WHITE:'O',EMPTY:'.'}
 
 
 class State:
@@ -23,18 +26,13 @@ class State:
         self.zobrist = zobrist
 
 class _Group:
-    """
-    color
-    points
-    is_surrounded
-    """
     pass
 
 def _coord_to_name(coord):
     return COL_NAMES[coord[1]] + str(SIZE - coord[0]).upper()
 
 def _name_to_coord(name):
-    return [COL_NAMES.index(name[0]), SIZE - int(name[1])]
+    return [SIZE - int(name[1:]), COL_NAMES.index(name[0])]
 
 def _color_name(color):
     return {BLACK:'b', WHITE:'w'}[color]
@@ -42,6 +40,7 @@ def _color_name(color):
 class Game:
     def __init__(self):
         self.board = np.zeros((SIZE, SIZE), dtype=np.int)
+        self.board.fill(EMPTY)
         self.next_player = BLACK
         self._is_empty = False
 
@@ -51,7 +50,6 @@ class Game:
         if self.board[tuple(move)] != EMPTY:
             return False
         self.board[tuple(move)] = self.next_player
-        self.next_player = opponent
         leelaz.play_move(_color_name(self.next_player), _coord_to_name(move))
         self._is_empty = False
         surrounded = self._find_surrounded_groups(move)
@@ -70,12 +68,13 @@ class Game:
             for group in to_capture:
                 for r, c in group.points:
                     self.board[r, c] = EMPTY
+        self.next_player = opponent
         return simple_ko_point
 
     def gen_move(self):
         move = leelaz.gen_move(_color_name(self.next_player))
-        print(_name_to_coord(move))
         self.board[tuple(_name_to_coord(move))] = self.next_player
+        self.next_player = OPPONENT[self.next_player]
 
 
     def _find_surrounded_groups(self, move):
@@ -129,7 +128,7 @@ game = Game()
 
 class Board(npyscreen.SimpleGrid):
     def __init__(self, *args, **kwargs):
-        super().__init__(column_width=3, col_margin=0, row_height=1, *args, **kwargs)
+        super().__init__(column_width=2, col_margin=0, row_height=1, *args, **kwargs)
 
         self.game = game
         self.values = self.game.board
@@ -165,7 +164,15 @@ class Board(npyscreen.SimpleGrid):
             curses.ascii.ESC:   self.h_terminate_leelay
         })
 
+    def custom_print_cell(self, actual_cell, cell_display_value):
+        if cell_display_value:
+            actual_cell.value = '+' \
+                    if actual_cell.grid_current_value_index in STARS \
+                        and cell_display_value == str(EMPTY) \
+                    else BOARD_UI[int(cell_display_value)]
+
     def h_undo(self, *args, **kwargs):
+        # unable until history implemented as currently stateless
         pass
 
     def h_play_move(self, *args, **kwargs):
@@ -214,3 +221,6 @@ class Board(npyscreen.SimpleGrid):
 
     def h_terminate_leelay(self, *args, **kwargs):
         self.parent.parentApp.switchForm(None)
+
+if __name__ == '__main__':
+    pass

@@ -111,7 +111,7 @@ class Leelaz:
         self.stdout_thread = start_reader_thread(p.stdout)
         self.stderr_thread = start_reader_thread(p.stderr)
 
-        self.send_command("time_settings 0 5 1")
+        self.send_command("time_settings 0 3 1")
 
     def play_move(self, color, move):
         self.send_command("play %s %s" % (color, move))
