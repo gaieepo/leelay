@@ -34,7 +34,6 @@ class ReaderThread:
         try:
             line = self.queue.get_nowait()
         except queue.Empty:
-            # print("Empty queue", file=sys.stdout)
             return ""
         return line
 
@@ -44,7 +43,6 @@ class ReaderThread:
             try:
                 line = self.queue.get_nowait()
             except queue.Empty:
-                # print("Empty queue", file=sys.stdout)
                 break
             lines.append(line)
         return lines
