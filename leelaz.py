@@ -106,7 +106,7 @@ class Leelaz:
         raise Exception("Failed to send command '%s' to LeelaZero" % (cmd))
 
     def start(self):
-        p = Popen(['./leelaz', '-g', '-wnetwork.gz'], stdout=PIPE, stdin=PIPE, stderr=PIPE)
+        p = Popen(['./leelaz', '-g', '-wnetwork.gz', '-t', '8', '--gpu', '2', '--gpu', '3'], stdout=PIPE, stdin=PIPE, stderr=PIPE)
         self.p = p
         self.stdout_thread = start_reader_thread(p.stdout)
         self.stderr_thread = start_reader_thread(p.stderr)

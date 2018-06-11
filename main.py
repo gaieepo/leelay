@@ -11,12 +11,12 @@ class LeelayForm(npyscreen.FormBaseNew):
         board = self.add(Board, max_height=2*(y//3))
 
 def myFunction(*args):
-    leelay = LeelayForm(name='Leelay Form')
+    leelay = LeelayForm(name="BLACK's turn")
     leelay.edit()
 
 class Leelay(npyscreen.StandardApp):
     def onStart(self):
-        self.addForm("MAIN", LeelayForm, name="Leelay Form")
+        self.addForm("MAIN", LeelayForm, name="BLACK's turn")
         leelaz.start()
 
     def onCleanExit(self):
