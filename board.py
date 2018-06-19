@@ -65,7 +65,8 @@ class Board(npyscreen.SimpleGrid):
         self.edit_cell = move
 
     def h_pass(self, *args, **kwargs):
-        pass
+        move = self.game.pass_move()
+        self.edit_cell = move
 
     def h_cursor_up_star(self, *args, **kwargs):
         if self.edit_cell[0] > SIZE-4:

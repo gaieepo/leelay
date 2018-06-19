@@ -6,7 +6,7 @@ SIZE = 19
 EMPTY = 0
 BLACK = 1
 WHITE = 2
-PASS_MOVE = None
+PASS = "pass"
 OPPONENT = {BLACK:WHITE, WHITE:BLACK}
 COL_NAMES = 'ABCDEFGHJKLMNOPQRST'
 COLOR_NAMES = {BLACK:'black',WHITE:'white'}
@@ -45,10 +45,17 @@ class Game:
     def play_move(self, move, gen=False):
         # no enforce ko rule
         opponent = OPPONENT[self.next_player]
+
+        if move == PASS:
+            self.history.append((PASS, self.board.copy()))
+            self.next_player = opponent
+            return True
         if self.board[tuple(move)] != EMPTY:
             return False
+
         self.board[tuple(move)] = self.next_player
         self.history.append((list(move), self.board.copy()))
+
         if not gen:
             leelaz.play_move(_color_name(self.next_player), _coord_to_name(move))
         self._is_empty = False
@@ -85,6 +92,11 @@ class Game:
             self.next_player = OPPONENT[self.next_player]
             return prev_move
         return None
+
+    def pass_move(self):
+        leelaz.play_move(_color_name(self.next_player), "pass")
+        self.play_move(PASS)
+        return list([0, 0])
 
     def _find_surrounded_groups(self, move):
         (r, c) = move
