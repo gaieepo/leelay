@@ -7,16 +7,15 @@ class LeelayForm(npyscreen.FormBaseNew):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         y, x = self.useable_space()
-        # title = self.add(npyscreen.TitleText, name='Board Form Title')
-        board = self.add(Board, max_height=2*(y//3))
+        board = self.add(Board)
 
 def myFunction(*args):
-    leelay = LeelayForm(name="BLACK's turn")
+    leelay = LeelayForm(name="black's turn")
     leelay.edit()
 
 class Leelay(npyscreen.StandardApp):
     def onStart(self):
-        self.addForm("MAIN", LeelayForm, name="BLACK's turn")
+        self.addForm("MAIN", LeelayForm, name="black's turn")
         leelaz.start()
 
     def onCleanExit(self):

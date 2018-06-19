@@ -6,6 +6,7 @@ from game import *
 STAR = '+'
 STARS = ((3,15),(9,15),(15,3),(9,3),(3,3),(15,15),(15,9),(9,9),(3,9))
 BOARD_UI = {BLACK:'X',WHITE:'O',EMPTY:'.'}
+COLOR_NAMES = {BLACK:'black',WHITE:'white'}
 
 class Board(npyscreen.SimpleGrid):
     def __init__(self, *args, **kwargs):
@@ -42,7 +43,7 @@ class Board(npyscreen.SimpleGrid):
             ord('g'):           self.h_show_beginning,
             ord('G'):           self.h_show_end,
 
-            ord('q'):                self.h_terminate_leelay
+            ord('q'):           self.h_terminate_leelay
         })
 
     def custom_print_cell(self, actual_cell, cell_display_value):
@@ -56,17 +57,25 @@ class Board(npyscreen.SimpleGrid):
         move = self.game.undo()
         if move:
             self.edit_cell = move
+            self._update_status("%s's turn" % COLOR_NAMES[self.game.next_player])
 
     def h_play_move(self, *args, **kwargs):
         self.game.play_move(self.edit_cell)
+        self._update_status("%s's turn" % COLOR_NAMES[self.game.next_player])
 
     def h_gen_move(self, *args, **kwargs):
         move = self.game.gen_move()
         self.edit_cell = move
+        self._update_status("%s's turn" % COLOR_NAMES[self.game.next_player])
 
     def h_pass(self, *args, **kwargs):
         move = self.game.pass_move()
         self.edit_cell = move
+        self._update_status("%s's turn" % COLOR_NAMES[self.game.next_player])
+
+    def _update_status(self, status):
+        self.parent.name = status
+        self.parent.display()
 
     def h_cursor_up_star(self, *args, **kwargs):
         if self.edit_cell[0] > SIZE-4:
