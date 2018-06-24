@@ -5,6 +5,7 @@ import time
 import sys
 import queue
 from threading import Thread
+from functools import reduce
 from subprocess import Popen, PIPE, STDOUT
 
 
@@ -13,11 +14,12 @@ class ReaderThread:
         self.queue = queue.Queue()
         self.fd = fd
         self.stopped = False
+        self.winrate = None
 
     def stop(self):
         self.stopped = True
 
-    def loop(self, caller=None):
+    def loop(self, caller=None, debug=False):
         while not self.stopped and not self.fd.closed:
             line = None
             try:
@@ -28,7 +30,18 @@ class ReaderThread:
                 pass
             if line is not None and len(line) > 0:
                 line = line.decode()
-                self.queue.put(line)
+                if line.startswith("info"):
+                    variations = line[5:].split(" info ")
+                    total_playouts = sum(int(v.split()[3]) for v in variations)
+                    self.winrate = reduce(
+                            lambda rv, v: rv + (int(v[5]) / 100.0) * int(v[3]) / total_playouts,
+                            [v.split() for v in variations],
+                            0.0
+                            )
+                else:
+                    self.queue.put(line)
+                if debug:
+                    print(caller + " => " + line)
 
     def readline(self):
         try:
@@ -46,22 +59,24 @@ class ReaderThread:
                 break
             lines.append(line)
         return lines
+    
 
-
-def start_reader_thread(fd):
+def start_reader_thread(fd, caller, debug=False):
     rt = ReaderThread(fd)
     def begin_loop():
-        rt.loop()
+        rt.loop(caller, debug)
     t = Thread(target=begin_loop)
     t.start()
     return rt
 
 
 class Leelaz:
-    def __init__(self):
+    def __init__(self, debug=False):
         self.p = None
         self.stdout_thread = None
         self.stderr_thread = None
+        self.debug=debug
+        self.is_ponder = False
 
     def __new__(cls, *args, **kwargs):
         singleton = cls.__dict__.get('__singleton__')
@@ -81,6 +96,16 @@ class Leelaz:
         so = self.stdout_thread.read_all_lines()
         se = self.stderr_thread.read_all_lines()
         return (so,se)
+
+    def analyze(self, keep=False):
+        if not self.is_ponder and keep:
+            self.is_ponder = True
+            self.p.stdin.write(bytes('lz-analyze 10\n', 'utf-8'))
+            self.p.stdin.flush()
+        elif not keep:
+            self.is_ponder = False
+            self.p.stdin.write(bytes('name\n', 'utf-8'))
+            self.p.stdin.flush()
 
     def send_command(self, cmd, expected_success_count=1, drain=True, timeout=20):
         self.p.stdin.write(bytes(cmd + '\n', 'utf-8'))
@@ -108,8 +133,8 @@ class Leelaz:
     def start(self):
         p = Popen(['./leelaz', '-g', '-wnetwork.gz', '-t', '8', '--gpu', '2', '--gpu', '3'], stdout=PIPE, stdin=PIPE, stderr=PIPE)
         self.p = p
-        self.stdout_thread = start_reader_thread(p.stdout)
-        self.stderr_thread = start_reader_thread(p.stderr)
+        self.stdout_thread = start_reader_thread(p.stdout, caller='stdout', debug=self.debug)
+        self.stderr_thread = start_reader_thread(p.stderr, caller='stderr', debug=self.debug)
 
         self.send_command("time_settings 0 5 1")
 
@@ -138,10 +163,14 @@ class Leelaz:
         time.sleep(0.5)
         so, se = self.drain()
 
-        return outs[0].split()[1]
+        return outs[-1].split()[1]
 
     def undo(self):
         self.send_command('undo')
+
+    def winrate(self):
+        rv = self.stdout_thread.winrate
+        return "{0:.2f}".format(rv) if rv is not None else rv
 
     def stop(self):
         if self.p is not None:
@@ -171,5 +200,6 @@ class Leelaz:
 leelaz = Leelaz()
 
 if __name__ == '__main__':
-    with Leelaz() as leelaz:
-        print(leelaz.gen_move('b'))
+    # with Leelaz(debug=True) as leelaz:
+    #     print(leelaz.gen_move('b'))
+    pass
