@@ -5,8 +5,9 @@ from game import *
 
 STAR = '+'
 STARS = ((3,15),(9,15),(15,3),(9,3),(3,3),(15,15),(15,9),(9,9),(3,9))
-BOARD_UI = {BLACK:'X',WHITE:'O',EMPTY:'.'}
+BOARD_UI = {BLACK:'O',WHITE:'O',EMPTY:'.'}
 COLOR_NAMES = {BLACK:'black',WHITE:'white'}
+COLORS = {BLACK:'CURSOR',WHITE:'CURSOR_INVERSE',EMPTY:'CURSOR'}
 
 class Board(npyscreen.SimpleGrid):
     def __init__(self, *args, **kwargs):
@@ -48,10 +49,12 @@ class Board(npyscreen.SimpleGrid):
 
     def custom_print_cell(self, actual_cell, cell_display_value):
         if cell_display_value:
-            actual_cell.value = STAR \
-                    if actual_cell.grid_current_value_index in STARS \
-                        and cell_display_value == str(EMPTY) \
-                    else BOARD_UI[int(cell_display_value)]
+            if actual_cell.grid_current_value_index in STARS \
+                    and cell_display_value == str(EMPTY):
+                actual_cell.value = STAR
+            else:
+                actual_cell.value = BOARD_UI[int(cell_display_value)]
+                actual_cell.color = COLORS[int(cell_display_value)]
 
     def h_undo(self, *args, **kwargs):
         move = self.game.undo()
