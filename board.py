@@ -7,7 +7,7 @@ STAR = '+'
 STARS = ((3,15),(9,15),(15,3),(9,3),(3,3),(15,15),(15,9),(9,9),(3,9))
 BOARD_UI = {BLACK:'O',WHITE:'O',EMPTY:'.'}
 COLOR_NAMES = {BLACK:'black',WHITE:'white'}
-COLORS = {BLACK:'CURSOR',WHITE:'CURSOR_INVERSE',EMPTY:'CURSOR'}
+COLORS = {BLACK:'DANGER',WHITE:'STANDOUT',EMPTY:'CURSOR'}
 
 class Board(npyscreen.SimpleGrid):
     def __init__(self, *args, **kwargs):

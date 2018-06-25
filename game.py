@@ -27,6 +27,8 @@ def _coord_to_name(coord):
     return COL_NAMES[coord[1]] + str(SIZE - coord[0]).upper()
 
 def _name_to_coord(name):
+    if name == 'resign':
+        return None
     return [SIZE - int(name[1:]), COL_NAMES.index(name[0])]
 
 def _color_name(color):
@@ -42,6 +44,9 @@ class Game:
         self.history.append((None, self.board.copy()))
 
     def play_move(self, move, gen=False):
+        if move is None:
+            return False
+
         # no enforce ko rule
         opponent = OPPONENT[self.next_player]
 
