@@ -9,14 +9,6 @@ class LeelayForm(npyscreen.FormBaseNew):
         y, x = self.useable_space()
         board = self.add(Board)
 
-    def while_waiting(self):
-        leelaz.analyze(keep=True)
-        self.name = self.name.split(' | ')[0] + ' | ' + str(leelaz.winrate())
-        self.display()
-
-    def adjust_widgets(self):
-        leelaz.analyze(keep=False)
-
 
 def myFunction(*args):
     leelay = LeelayForm(name="black's turn")

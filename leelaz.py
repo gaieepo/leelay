@@ -76,7 +76,6 @@ class Leelaz:
         self.stdout_thread = None
         self.stderr_thread = None
         self.debug=debug
-        self.is_ponder = False
 
     def __new__(cls, *args, **kwargs):
         singleton = cls.__dict__.get('__singleton__')
@@ -97,15 +96,9 @@ class Leelaz:
         se = self.stderr_thread.read_all_lines()
         return (so,se)
 
-    def analyze(self, keep=False):
-        if not self.is_ponder and keep:
-            self.is_ponder = True
-            self.p.stdin.write(bytes('lz-analyze 10\n', 'utf-8'))
-            self.p.stdin.flush()
-        elif not keep:
-            self.is_ponder = False
-            self.p.stdin.write(bytes('name\n', 'utf-8'))
-            self.p.stdin.flush()
+    def analyze(self):
+        self.p.stdin.write(bytes('lz-analyze 10\n', 'utf-8'))
+        self.p.stdin.flush()
 
     def send_command(self, cmd, expected_success_count=1, drain=True, timeout=20):
         self.p.stdin.write(bytes(cmd + '\n', 'utf-8'))
