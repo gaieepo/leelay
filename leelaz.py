@@ -76,6 +76,8 @@ class Leelaz:
         self.stdout_thread = None
         self.stderr_thread = None
         self.debug=debug
+        self.acting = False
+        self.acted = True
 
     def __new__(cls, *args, **kwargs):
         singleton = cls.__dict__.get('__singleton__')
@@ -135,6 +137,8 @@ class Leelaz:
         self.send_command("play %s %s" % (color, move))
 
     def gen_move(self, color):
+        self.acting = True
+        self.acted = False
         time_limit = 5
         self.p.stdin.write(bytes('genmove %s\n' % color, 'utf-8'))
         self.p.stdin.flush()
@@ -155,6 +159,9 @@ class Leelaz:
         self.p.stdin.flush()
         time.sleep(0.5)
         so, se = self.drain()
+        
+        self.acted = True
+        self.acting = False
 
         return outs[-1].split()[1]
 
