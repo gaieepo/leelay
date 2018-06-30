@@ -76,7 +76,8 @@ class Leelaz:
         self.stdout_thread = None
         self.stderr_thread = None
         self.debug=debug
-        self.is_pondering = False
+        self.acting = False
+        self.acted = True
 
     def __new__(cls, *args, **kwargs):
         singleton = cls.__dict__.get('__singleton__')
@@ -98,10 +99,8 @@ class Leelaz:
         return (so,se)
 
     def analyze(self):
-        if not self.is_pondering:
-            self.p.stdin.write(bytes('lz-analyze 10\n', 'utf-8'))
-            self.p.stdin.flush()
-            self.is_pondering = True
+        self.p.stdin.write(bytes('lz-analyze 10\n', 'utf-8'))
+        self.p.stdin.flush()
 
     def send_command(self, cmd, expected_success_count=1, drain=True, timeout=20):
         self.p.stdin.write(bytes(cmd + '\n', 'utf-8'))
@@ -135,11 +134,11 @@ class Leelaz:
         self.send_command("time_settings 0 5 1")
 
     def play_move(self, color, move):
-        self.is_pondering = False
         self.send_command("play %s %s" % (color, move))
 
     def gen_move(self, color):
-        self.is_pondering = False
+        self.acting = True
+        self.acted = False
         time_limit = 5
         self.p.stdin.write(bytes('genmove %s\n' % color, 'utf-8'))
         self.p.stdin.flush()
@@ -160,11 +159,13 @@ class Leelaz:
         self.p.stdin.flush()
         time.sleep(0.5)
         so, se = self.drain()
+        
+        self.acted = True
+        self.acting = False
 
         return outs[-1].split()[1]
 
     def undo(self):
-        self.is_pondering = False
         self.send_command('undo')
 
     def winrate(self):
