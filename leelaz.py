@@ -4,9 +4,11 @@ import re
 import time
 import sys
 import queue
+import yaml
 from threading import Thread
 from functools import reduce
 from subprocess import Popen, PIPE, STDOUT
+from utils import *
 
 
 class ReaderThread:
@@ -71,13 +73,17 @@ def start_reader_thread(fd, caller, debug=False):
 
 
 class Leelaz:
-    def __init__(self, debug=False):
+    def __init__(self, debug=None):
         self.p = None
         self.stdout_thread = None
         self.stderr_thread = None
-        self.debug=debug
-        self.acting = False
-        self.acted = True
+
+        with open('config.yaml', 'r') as infile:
+            self.conf = yaml.load(infile) 
+
+        self.debug = self.conf['debug']
+        if debug is not None:
+            self.debug = debug
 
     def __new__(cls, *args, **kwargs):
         singleton = cls.__dict__.get('__singleton__')
@@ -126,20 +132,22 @@ class Leelaz:
         raise Exception("Failed to send command '%s' to LeelaZero" % (cmd))
 
     def start(self):
-        p = Popen(['./leelaz', '-g', '-wnetwork.gz', '-t', '8', '--gpu', '2', '--gpu', '3'], stdout=PIPE, stdin=PIPE, stderr=PIPE)
+        gpus = []
+        for _ in self.conf['gpu']:
+            gpus += ['--gpu', str(_)]
+        p = Popen(['./leelaz', '-g', '-w' + self.conf['weight-file'], '-t', str(self.conf['thread'])] + gpus, stdout=PIPE, stdin=PIPE, stderr=PIPE)
         self.p = p
         self.stdout_thread = start_reader_thread(p.stdout, caller='stdout', debug=self.debug)
         self.stderr_thread = start_reader_thread(p.stderr, caller='stderr', debug=self.debug)
 
-        self.send_command("time_settings 0 5 1")
+        self.send_command("time_settings 0 " + str(self.conf['gen-move-seconds']) + " 1")
 
     def play_move(self, color, move):
         self.send_command("play %s %s" % (color, move))
+        self.analyze()
 
     def gen_move(self, color):
-        self.acting = True
-        self.acted = False
-        time_limit = 5
+        time_limit = self.conf['gen-move-seconds']
         self.p.stdin.write(bytes('genmove %s\n' % color, 'utf-8'))
         self.p.stdin.flush()
 
@@ -151,7 +159,7 @@ class Leelaz:
             so, se = self.drain()
             outs.extend(so)
             errs.extend(se)
-            if len(so) == 1 and so[0].count('=') == 1:
+            if len(so) == 1 and len(so[0]) > 1 and so[0].count('=') == 1:
                 break
             waited += 1
 
@@ -159,9 +167,8 @@ class Leelaz:
         self.p.stdin.flush()
         time.sleep(0.5)
         so, se = self.drain()
-        
-        self.acted = True
-        self.acting = False
+
+        self.analyze()
 
         return outs[-1].split()[1]
 
@@ -200,6 +207,5 @@ class Leelaz:
 leelaz = Leelaz()
 
 if __name__ == '__main__':
-    # with Leelaz(debug=True) as leelaz:
-    #     print(leelaz.gen_move('b'))
-    pass
+    with Leelaz(debug=True) as leelaz:
+        fprint(leelaz.gen_move('b'))

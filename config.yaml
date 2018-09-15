@@ -1,0 +1,6 @@
+debug: False
+lz-analyze: 10
+weight-file: elf.gz
+gen-move-seconds: 5
+thread: 8
+gpu: [0, 2]
