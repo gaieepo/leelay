@@ -10,7 +10,11 @@ class LeelayForm(npyscreen.FormBaseNew):
         board = self.add(Board)
 
     def while_waiting(self):
-        self.name = self.name.split(' | ')[0] + ' | ' + str(leelaz.winrate())
+        self.name = " | ".join([
+                self.name.split(' | ')[0],
+                str(leelaz.winrate()),
+                str(leelaz.playout())
+            ])
         self.display()
 
 

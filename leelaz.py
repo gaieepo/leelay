@@ -17,6 +17,7 @@ class ReaderThread:
         self.fd = fd
         self.stopped = False
         self.winrate = None
+        self.playouts = None
 
     def stop(self):
         self.stopped = True
@@ -35,6 +36,7 @@ class ReaderThread:
                 if line.startswith("info"):
                     variations = line[5:].split(" info ")
                     total_playouts = sum(int(v.split()[3]) for v in variations)
+                    self.playouts = total_playouts
                     self.winrate = reduce(
                             lambda rv, v: rv + (int(v[5]) / 100.0) * int(v[3]) / total_playouts,
                             [v.split() for v in variations],
@@ -178,6 +180,9 @@ class Leelaz:
     def winrate(self):
         rv = self.stdout_thread.winrate
         return "{0:.2f}".format(rv) if rv is not None else rv
+
+    def playout(self):
+        return self.stdout_thread.playouts
 
     def stop(self):
         if self.p is not None:
