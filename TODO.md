@@ -1,7 +1,0 @@
-- [x] use play_move to play gen_move
-- [x] focus cursor after genmove
-- [x] undo, history 
-- [ ] state and ko
-- [ ] real-time, winrate
-- [ ] showing whoseturn
-- [ ] unit test

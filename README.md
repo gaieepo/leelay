@@ -6,5 +6,10 @@ LeelaZero TUI wrapper
 - leela launcher
 
 # TODO
-- too many
-- subprocess thread legit (MOST IMPORTANT)
+- [x] use play_move to play gen_move
+- [x] focus cursor after genmove
+- [x] undo, history 
+- [ ] state and ko
+- [x] real-time, winrate
+- [x] showing whoseturn
+- [ ] unit test
