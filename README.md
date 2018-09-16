@@ -13,3 +13,4 @@ LeelaZero TUI wrapper
 - [x] real-time, winrate
 - [x] showing whoseturn
 - [ ] unit test
+- [ ] save and load sgf file
