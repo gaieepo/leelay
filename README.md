@@ -1,6 +1,12 @@
 # leelay
 LeelaZero TUI wrapper
 
+# How to use
+```python
+python3 install -r requirements.txt
+python3 main.py
+```
+
 # Features
 - board ui
 - leela launcher
