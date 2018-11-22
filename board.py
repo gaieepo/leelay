@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import npyscreen
 import curses
+
 from game import *
 
 STAR = '+'

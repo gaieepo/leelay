@@ -1,7 +1,10 @@
+#!/usr/bin/env python3
 # main.py
 import npyscreen
+
 from board import Board
 from leelaz import leelaz
+
 
 class LeelayForm(npyscreen.FormBaseNew):
     def __init__(self, *args, **kwargs):

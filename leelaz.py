@@ -4,11 +4,13 @@ import re
 import time
 import sys
 import queue
-import yaml
 from threading import Thread
 from functools import reduce
 from subprocess import Popen, PIPE, STDOUT
-from utils import *
+
+import yaml
+
+from utils import fprint
 
 
 class ReaderThread:
