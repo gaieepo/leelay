@@ -53,6 +53,7 @@ class Board(npyscreen.SimpleGrid):
             if actual_cell.grid_current_value_index in STARS \
                     and cell_display_value == str(EMPTY):
                 actual_cell.value = STAR
+                actual_cell.color = COLORS[EMPTY]
             else:
                 actual_cell.value = BOARD_UI[int(cell_display_value)]
                 actual_cell.color = COLORS[int(cell_display_value)]
