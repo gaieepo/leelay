@@ -143,6 +143,7 @@ class Leelaz:
         self.stderr_thread = start_reader_thread(p.stderr, caller='stderr', debug=self.debug)
 
         self.send_command("time_settings 0 " + str(self.conf['gen-move-seconds']) + " 1")
+        self.analyze()
 
     def play_move(self, color, move):
         self.send_command("play %s %s" % (color, move))
