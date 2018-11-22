@@ -23,16 +23,20 @@ class _Group:
     """
     pass
 
+
 def _coord_to_name(coord):
     return COL_NAMES[coord[1]] + str(SIZE - coord[0]).upper()
+
 
 def _name_to_coord(name):
     if name == 'resign':
         return None
     return [SIZE - int(name[1:]), COL_NAMES.index(name[0])]
 
+
 def _color_name(color):
     return {BLACK:'b', WHITE:'w'}[color]
+
 
 class Game:
     def __init__(self):
@@ -123,7 +127,7 @@ class Game:
                 surrounded.append(group)
             handled.update(group.points)
         return surrounded
-    
+
     def _make_group(self, row, col, color):
         points = set()
         is_surrounded = True
@@ -149,4 +153,5 @@ class Game:
         group.is_surrounded = is_surrounded
         return group
 
+# instantiate game entity
 game = Game()

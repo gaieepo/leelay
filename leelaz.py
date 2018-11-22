@@ -63,7 +63,7 @@ class ReaderThread:
                 break
             lines.append(line)
         return lines
-    
+
 
 def start_reader_thread(fd, caller, debug=False):
     rt = ReaderThread(fd)
@@ -81,7 +81,7 @@ class Leelaz:
         self.stderr_thread = None
 
         with open('config.yaml', 'r') as infile:
-            self.conf = yaml.load(infile) 
+            self.conf = yaml.load(infile)
 
         self.debug = self.conf['debug']
         if debug is not None:
@@ -209,7 +209,9 @@ class Leelaz:
             except OSError as e:
                 print("Error when terminate process: ", str(e), file=sys.stderr)
 
+# instantiate leelaz entity
 leelaz = Leelaz()
+
 
 if __name__ == '__main__':
     with Leelaz(debug=True) as leelaz:

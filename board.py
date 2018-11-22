@@ -9,6 +9,7 @@ BOARD_UI = {BLACK:'O',WHITE:'O',EMPTY:'.'}
 COLOR_NAMES = {BLACK:'black',WHITE:'white'}
 COLORS = {BLACK:'DANGER',WHITE:'STANDOUT',EMPTY:'CURSOR'}
 
+
 class Board(npyscreen.SimpleGrid):
     def __init__(self, *args, **kwargs):
         super().__init__(column_width=2, col_margin=0, row_height=1, *args, **kwargs)
@@ -98,7 +99,7 @@ class Board(npyscreen.SimpleGrid):
 
     def h_cursor_down_star(self, *args, **kwargs):
         if self.edit_cell[0] < 3:
-            self.edit_cell[0] = 3 
+            self.edit_cell[0] = 3
         elif self.edit_cell[0] < 9:
             self.edit_cell[0] = 9
         elif self.edit_cell[0] < SIZE-4:
@@ -106,7 +107,7 @@ class Board(npyscreen.SimpleGrid):
 
     def h_cursor_right_star(self, *args, **kwargs):
         if self.edit_cell[1] < 3:
-            self.edit_cell[1] = 3 
+            self.edit_cell[1] = 3
         elif self.edit_cell[1] < 9:
             self.edit_cell[1] = 9
         elif self.edit_cell[1] < SIZE-4:
