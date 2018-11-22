@@ -1,6 +1,7 @@
 debug: False
 lz-analyze: 10
-weight-file: elf.gz
+weight-file: network.gz
+sgf-file: test.sgf
 gen-move-seconds: 5
 thread: 8
-gpu: [0, 2]
+gpu: [0, 1]

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import numpy as np
 from leelaz import leelaz
+from sgfmill import sgf
 
 SIZE = 19
 EMPTY = 0
@@ -38,12 +39,28 @@ def _color_name(color):
     return {BLACK:'b', WHITE:'w'}[color]
 
 
+def _sgf_move_to_coord(move):
+    # ('b', (15, 16))
+    # black four-three starting point
+    row, col = move[1]
+    return [SIZE - row - 1, col]
+
+
 class Game:
     def __init__(self):
+        # shared board object
         self.board = np.zeros((SIZE, SIZE), dtype=np.int)
-        self.board.fill(EMPTY)
+
         self.next_player = BLACK
         self._is_empty = False
+
+        self._clear_board()
+        self._init_history()
+
+    def _clear_board(self):
+        self.board.fill(EMPTY)
+
+    def _init_history(self):
         self.history = []
         self.history.append((None, self.board.copy()))
 
@@ -105,6 +122,19 @@ class Game:
         leelaz.play_move(_color_name(self.next_player), "pass")
         self.play_move(PASS)
         return list([0, 0])
+
+    def open_sgf(self):
+        self._clear_board()
+        self._init_history()
+
+        with open(leelaz.conf['sgf-file'], 'rb') as f:
+            game = sgf.Sgf_game.from_bytes(f.read())
+
+        for node in game.get_main_sequence()[1:]:
+            move = _sgf_move_to_coord(node.get_move())
+            self.play_move(move)
+            yield move
+
 
     def _find_surrounded_groups(self, move):
         (r, c) = move

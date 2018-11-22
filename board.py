@@ -45,7 +45,9 @@ class Board(npyscreen.SimpleGrid):
             ord('g'):           self.h_show_beginning,
             ord('G'):           self.h_show_end,
 
-            ord('q'):           self.h_terminate_leelay
+            ord('q'):           self.h_terminate_leelay,
+
+            'o':                self.h_open_sgf
         })
 
     def custom_print_cell(self, actual_cell, cell_display_value):
@@ -119,3 +121,8 @@ class Board(npyscreen.SimpleGrid):
 
     def h_terminate_leelay(self, *args, **kwargs):
         self.parent.parentApp.switchForm(None)
+
+    def h_open_sgf(self, *args, **kwargs):
+        for move in self.game.open_sgf():
+            self.edit_cell = move
+            self._update_status("%s's turn" % COLOR_NAMES[self.game.next_player])
