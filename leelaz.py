@@ -20,6 +20,7 @@ class ReaderThread:
         self.stopped = False
         self.winrate = None
         self.playouts = None
+        self.recommendations = None
 
     def stop(self):
         self.stopped = True
@@ -44,6 +45,7 @@ class ReaderThread:
                             [v.split() for v in variations],
                             0.0
                             )
+                    self.recommendations = [(v.split()[1], int(v.split()[5]) / 100.0) for v in variations]
                 else:
                     self.queue.put(line)
                 if debug:
@@ -186,6 +188,10 @@ class Leelaz:
 
     def playout(self):
         return self.stdout_thread.playouts
+
+    def recommendations(self):
+        recom = [m+"("+str(r)+")" for m, r in self.stdout_thread.recommendations[:3]]
+        return ", ".join(recom)
 
     def stop(self):
         if self.p is not None:

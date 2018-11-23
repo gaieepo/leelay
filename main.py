@@ -16,7 +16,8 @@ class LeelayForm(npyscreen.FormBaseNew):
         self.name = " | ".join([
                 self.name.split(' | ')[0],
                 str(leelaz.winrate()),
-                str(leelaz.playout())
+                str(leelaz.playout()),
+                str(leelaz.recommendations())
             ])
         self.display()
 
