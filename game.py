@@ -5,6 +5,7 @@ from sgfmill import sgf
 from leelaz import leelaz
 
 SIZE = 19
+TOP = 1
 EMPTY = 7
 BLACK = 8
 WHITE = 9
@@ -80,7 +81,7 @@ class Game:
             self.history.append((PASS, _clip(self.board.copy())))
             self.next_player = opponent
             return True
-        if self.board[tuple(move)] != EMPTY:
+        if self.board[tuple(move)] in [BLACK, WHITE]:
             return False
 
         self.board[tuple(move)] = self.next_player
@@ -129,7 +130,6 @@ class Game:
         return list([0, 0])
 
     def open_sgf(self):
-        self._clear_board()
         self._init_history()
 
         with open(leelaz.conf['sgf-file'], 'rb') as f:
@@ -139,7 +139,6 @@ class Game:
             move = _sgf_move_to_coord(node.get_move())
             self.play_move(move)
             yield move
-
 
     def _find_surrounded_groups(self, move):
         (r, c) = move

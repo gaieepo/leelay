@@ -4,6 +4,8 @@ import npyscreen
 
 from board import Board
 from leelaz import leelaz
+from utils import repr_recom
+from game import game
 
 
 class LeelayForm(npyscreen.FormBaseNew):
@@ -17,7 +19,7 @@ class LeelayForm(npyscreen.FormBaseNew):
                 self.name.split(' | ')[0],
                 str(leelaz.winrate()),
                 str(leelaz.playout()),
-                str(leelaz.recommendations())
+                repr_recom(leelaz.recommendations())
             ])
         self.display()
 

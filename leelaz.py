@@ -111,7 +111,7 @@ class Leelaz:
         return (so,se)
 
     def analyze(self):
-        self.p.stdin.write(bytes('lz-analyze 10\n', 'utf-8'))
+        self.p.stdin.write(bytes('lz-analyze {}\n'.format(self.conf['lz-analyze']), 'utf-8'))
         self.p.stdin.flush()
 
     def send_command(self, cmd, expected_success_count=1, drain=True, timeout=20):
@@ -190,8 +190,7 @@ class Leelaz:
         return self.stdout_thread.playouts
 
     def recommendations(self):
-        recom = [m+"("+str(r)+")" for m, r in self.stdout_thread.recommendations[:3]]
-        return ", ".join(recom)
+        return self.stdout_thread.recommendations[:5] if self.stdout_thread.recommendations is not None else None
 
     def stop(self):
         if self.p is not None:
