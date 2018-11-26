@@ -2,7 +2,9 @@
 import npyscreen
 import curses
 
-from game import *
+from utils import *
+from leelaz import leelaz
+from game import game
 
 STAR = '+'
 STARS = ((3,15),(9,15),(15,3),(9,3),(3,3),(15,15),(15,9),(9,9),(3,9))
@@ -13,10 +15,6 @@ RCM_TOP_COLOR = 'IMPORTANT'
 RCM_OTHERS = '#'
 RCM_OTHERS_COLOR = 'CONTROL'
 COLORS = {BLACK:'DANGER',WHITE:'STANDOUT',EMPTY:'CURSOR'}
-def _name_to_coord(name):
-    if name == 'resign':
-        return None
-    return [SIZE - int(name[1:]), COL_NAMES.index(name[0])]
 
 
 class Board(npyscreen.SimpleGrid):
@@ -61,7 +59,7 @@ class Board(npyscreen.SimpleGrid):
 
     def custom_print_cell(self, actual_cell, cell_display_value):
         if cell_display_value:
-            recoms =[tuple(_name_to_coord(r[0])) for r in leelaz.recommendations()] \
+            recoms = [tuple(name_to_coord(r[0])) for r in leelaz.recommendations()] \
                     if leelaz.recommendations() is not None \
                     else []
 

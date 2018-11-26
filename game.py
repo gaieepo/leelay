@@ -4,39 +4,7 @@ from sgfmill import sgf
 
 from leelaz import leelaz
 
-SIZE = 19
-TOP = 1
-EMPTY = 7
-BLACK = 8
-WHITE = 9
-PASS = "pass"
-OPPONENT = {BLACK:WHITE, WHITE:BLACK}
-COL_NAMES = 'ABCDEFGHJKLMNOPQRST'
-
-
-def _coord_to_name(coord):
-    return COL_NAMES[coord[1]] + str(SIZE - coord[0]).upper()
-
-
-def _name_to_coord(name):
-    if name == 'resign':
-        return None
-    return [SIZE - int(name[1:]), COL_NAMES.index(name[0])]
-
-
-def _color_name(color):
-    return {BLACK:'b', WHITE:'w'}[color]
-
-
-def _sgf_move_to_coord(move):
-    # ('b', (15, 16))
-    # black four-three starting point
-    row, col = move[1]
-    return [SIZE - row - 1, col]
-
-
-def _clip(array):
-    return np.clip(array, EMPTY, WHITE)
+from utils import *
 
 
 class _Group:
@@ -75,7 +43,7 @@ class Game:
 
     def _init_history(self):
         self.history = []
-        self.history.append((None, _clip(self.board.copy())))
+        self.history.append((None, clip(self.board.copy())))
 
     def play_move(self, move, gen=False):
         if move is None:
@@ -85,17 +53,17 @@ class Game:
         opponent = OPPONENT[self.next_player]
 
         if move == PASS:
-            self.history.append((PASS, _clip(self.board.copy())))
+            self.history.append((PASS, clip(self.board.copy())))
             self.next_player = opponent
             return True
         if self.board[tuple(move)] in [BLACK, WHITE]:
             return False
 
         self.board[tuple(move)] = self.next_player
-        self.history.append((list(move), _clip(self.board.copy())))
+        self.history.append((list(move), clip(self.board.copy())))
 
         if not gen:
-            leelaz.play_move(_color_name(self.next_player), _coord_to_name(move))
+            leelaz.play_move(color_name(self.next_player), coord_to_name(move))
         self._is_empty = False
         surrounded = self._find_surrounded_groups(move)
         simple_ko_point = None
@@ -117,7 +85,7 @@ class Game:
         return simple_ko_point
 
     def gen_move(self):
-        move = _name_to_coord(leelaz.gen_move(_color_name(self.next_player)))
+        move = name_to_coord(leelaz.gen_move(color_name(self.next_player)))
         self.play_move(move, gen=True)
         return move
 
@@ -126,13 +94,13 @@ class Game:
             leelaz.undo()
             self.history.pop()
             prev_move = list(self.history[-1][0]) if self.history[-1][0] else None
-            self.board[:] = _clip(self.history[-1][1].copy())
+            self.board[:] = clip(self.history[-1][1].copy())
             self.next_player = OPPONENT[self.next_player]
             return prev_move
         return None
 
     def pass_move(self):
-        leelaz.play_move(_color_name(self.next_player), "pass")
+        leelaz.play_move(color_name(self.next_player), "pass")
         self.play_move(PASS)
         return list([0, 0])
 
@@ -143,7 +111,7 @@ class Game:
             game = sgf.Sgf_game.from_bytes(f.read())
 
         for node in game.get_main_sequence()[1:]:
-            move = _sgf_move_to_coord(node.get_move())
+            move = sgf_move_to_coord(node.get_move())
             self.play_move(move)
             yield move
 
