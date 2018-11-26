@@ -63,6 +63,13 @@ class Game:
         self._clear_board()
         self._init_history()
 
+    def __new__(cls, *args, **kwargs):
+        singleton = cls.__dict__.get('__singleton__')
+        if singleton is not None:
+            return singleton
+        cls.__singleton__ = singleton = object.__new__(cls)
+        return singleton
+
     def _clear_board(self):
         self.board.fill(EMPTY)
 
