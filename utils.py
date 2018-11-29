@@ -16,7 +16,7 @@ def coord_to_name(coord):
 
 
 def name_to_coord(name):
-    if name == 'resign':
+    if name == 'resign' or name == PASS:
         return None
     return [SIZE - int(name[1:]), COL_NAMES.index(name[0])]
 

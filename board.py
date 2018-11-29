@@ -59,10 +59,11 @@ class Board(npyscreen.SimpleGrid):
 
     def custom_print_cell(self, actual_cell, cell_display_value):
         if cell_display_value:
-            recoms = [tuple(name_to_coord(r[0])) for r in leelaz.recommendations()] \
-                    if leelaz.recommendations() is not None \
-                    else []
-
+            recoms = []
+            if leelaz.recommendations() is not None:
+                for r in leelaz.recommendations():
+                    if name_to_coord(r[0]):
+                        recoms.append(tuple(name_to_coord(r[0])))
             if actual_cell.grid_current_value_index in recoms:
                 if actual_cell.grid_current_value_index == recoms[0]:
                     actual_cell.value, actual_cell.color = RCM_TOP, RCM_TOP_COLOR

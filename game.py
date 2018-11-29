@@ -100,7 +100,7 @@ class Game:
         return None
 
     def pass_move(self):
-        leelaz.play_move(color_name(self.next_player), "pass")
+        leelaz.play_move(color_name(self.next_player), PASS)
         self.play_move(PASS)
         return list([0, 0])
 
